@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stress Test Quiz</title>
+    <style>
+        body {
+            background-color: #2D2D2D;
+            color: #FFFFFF;
+            font-family: 'Times New Roman', Times, serif, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #333333;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        h1 {
+            text-align: left;
+            color: #FFC0CB;
+        }
+        p.instructions {
+            text-align: left;
+            
+            font-size: 20px;
+        }
+        .question {
+            margin: 15px 0;
+            font-size: 17px; /* Default font size for questions */
+            text-align: center;
+        }
+        .options {
+            display: flex;
+            justify-content: space-around;
+        }
+        .options label {
+            margin-right: 10px;
+        }
+        .submit-btn, .next-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .thank-you {
+            display: none;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .thank-you h2 {
+            font-size: 36px;
+            color: #FFC0CB;
+            margin-bottom: 10px;
+        }
+        .thank-you p {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="quizContainer">
+            <h1>Stress Test Quiz</h1>
+            <p class="instructions"><strong>Answer each question on a scale from 1 to 5, where:</strong></p>
+            <p class="instructions">1 = Never, 2 = Rarely, 3 = Sometimes, 4 = Often, 5 = Always</p>
+
+            <!-- Questions will be dynamically inserted here -->
+            <div id="questionContainer"></div>
+
+            <!-- Navigation Buttons -->
+            <button id="nextButton" class="next-btn" onclick="nextQuestion()">Next</button>
+            <button id="submitButton" class="submit-btn" onclick="calculateStress()" style="display: none;">Submit</button>
+        </div>
+
+        <!-- Thank You Message and Results -->
+        <div id="thankYouMessage" class="thank-you">
+            <h2>Thank You!</h2>
+            <p id="resultMessage"></p>
+            <p> <strong>We appreciate your participation in this stress test quiz.</strong></p>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            "I found it hard to wind down",
+            "I tended to over-react to situations",
+            "I felt that I was using a lot of nervous energy",
+            "I found myself getting agitated",
+            "I found it difficult to relax",
+            "I was intolerant of anything that kept me from getting on with what I was doing",
+            "I felt that I was rather touchy"
+        ];
+
+        let currentQuestionIndex = 0;
+        const responses = new Array(questions.length).fill(null);
+
+        // Function to display the current question
+        function showQuestion() {
+            const questionContainer = document.getElementById('questionContainer');
+            questionContainer.innerHTML = `
+                <p class="question">${currentQuestionIndex + 1}. ${questions[currentQuestionIndex]}</p>
+                <div class="options">
+                    ${[1, 2, 3, 4, 5].map(value => `
+                        <label>
+                            <input type="radio" name="q${currentQuestionIndex}" value="${value}" onclick="saveResponse(${value})"> ${value}
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+
+            // Update button visibility
+            document.getElementById('nextButton').style.display = currentQuestionIndex < questions.length - 1 ? 'inline' : 'none';
+            document.getElementById('submitButton').style.display = currentQuestionIndex === questions.length - 1 ? 'inline' : 'none';
+        }
+
+        // Save the response for the current question
+        function saveResponse(value) {
+            responses[currentQuestionIndex] = value;
+        }
+
+        // Show the next question
+        function nextQuestion() {
+            if (responses[currentQuestionIndex] === null) {
+                alert("Please select an answer before moving to the next question.");
+                return;
+            }
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        // Calculate and display stress level
+        function calculateStress() {
+            if (responses[currentQuestionIndex] === null) {
+                alert("Please select an answer before submitting.");
+                return;
+            }
+
+            const totalScore = responses.reduce((acc, score) => acc + score, 0);
+            const averageScore = totalScore / questions.length;
+            let stressLevel;
+
+            if (averageScore <= 1.5) {
+                stressLevel = "Based on your response your stress level is low. Keep up the good work and don't forget to keep doing what helps you feel balanced";
+            } else if (averageScore <= 3.0) {
+                stressLevel = "Your stress level is moderate, so make sure to to take breaks and find time to recharge when you can. You've got this!";
+            } else if (averageScore <= 4.0) {
+                stressLevel = "Your stress level is on the higher side. It's important to take it easy when you can and lean on support if needed. Remember, you don't have to handle everything alone.";
+            } else {
+                stressLevel = "Your responses show a very high stress level. Take some time for yourself, and reach out if you'd like to talk it over with someone. Taking care of yourself is important--you've got support.";
+            }
+
+            // Display the results in the thank-you message
+            document.getElementById("resultMessage").innerText = `Total Score: ${totalScore}\nAverage Score: ${averageScore.toFixed(2)}\nStress Level: ${stressLevel}`;
+            document.getElementById("quizContainer").style.display = "none";
+            document.getElementById("thankYouMessage").style.display = "block";
+        }
+
+        // Show the first question on load
+        showQuestion();
+    </script>
+</body>
+</html>
